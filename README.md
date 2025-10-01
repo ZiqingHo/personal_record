@@ -12,7 +12,7 @@ A single-file, local & private web app to collect, search, and export your liter
 
 ## Usage
 
-1. Open `index.html` in your browser (double-click is fine).
+1. Open `record.html` in your browser (double-click is fine).
 2. Fill the form and click **Save Entry**.
 3. Use the **Library** toolbar to search, sort, filter by year, and export/import.
 
