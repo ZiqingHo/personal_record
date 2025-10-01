@@ -38,16 +38,3 @@ JSON entries are shaped like:
 }
 ```
 
-## Development
-
-This is a pure static page. No build tool is required. If you want hot-reload, serve locally with any static server.
-
-```bash
-# Python 3
-python3 -m http.server 8000
-# then open http://localhost:8000
-```
-
-## License
-
-MIT — see [LICENSE](LICENSE).
