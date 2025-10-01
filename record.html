@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Literature Review Manager</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #121821;
+      --muted: #8aa1b1;
+      --text: #e7eef5;
+      --accent: #69bff8;
+      --accent-2: #6ee7b7;
+      --danger: #f87171;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(180deg, #0b0f14, #0b1220 35%, #0c1322);
+      color: var(--text);
+    }
+    a { color: var(--accent); }
+
+    .container { max-width: 1000px; margin: 0 auto; padding: 24px; }
+    .title { font-weight: 800; font-size: 28px; letter-spacing: .3px; display: flex; align-items: center; gap: 12px; }
+
+    .stack { display: grid; gap: 20px; }
+
+    .card { background: linear-gradient(180deg, #101720, #0f1726); border: 1px solid rgba(255,255,255,.06); box-shadow: var(--shadow); border-radius: var(--radius); }
+    .card h2 { margin: 0 0 8px 0; font-size: 16px; letter-spacing: .2px; color: #cfe6ff; }
+    .card .head { padding: 16px 16px 0 16px; }
+    .card .body { padding: 16px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 720px){ .row { grid-template-columns: 1fr; } }
+
+    label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; }
+    input[type="text"], textarea, select {
+      width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,.08);
+      background: #0c131e; color: var(--text); padding: 10px 12px; font: inherit; outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(105,191,248,.2); }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    button { border: 0; border-radius: 12px; padding: 10px 14px; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), #8ecdfb); color: #001427; }
+    .btn-secondary { background: #0e1623; color: #fff; border: 1px solid rgba(255,255,255,.08); }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #f87171); color: #280e0e; }
+
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .spacer { flex: 1; }
+
+    .list { display: grid; gap: 12px; }
+    .item { background: linear-gradient(180deg, #0f1623, #101827); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 14px; }
+    .item-top { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: baseline; }
+    .tag { display: inline-block; border: 1px solid rgba(255,255,255,.14); color: #cde7ff; padding: 2px 8px; font-size: 11px; border-radius: 999px; margin-left: 6px; }
+    .muted { color: var(--muted); font-size: 12px; }
+
+    .section-title { font-size: 12px; font-weight: 700; letter-spacing: .3px; color: #bfe4ff; margin-top: 10px; text-transform: uppercase; }
+    .hr { height: 1px; background: rgba(255,255,255,.08); margin: 14px 0; border: 0; }
+
+    .empty { text-align: center; padding: 30px; color: var(--muted); border: 1px dashed rgba(255,255,255,.12); border-radius: 12px; }
+  </style>
+  <!-- MathJax for LaTeX rendering -->
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\(', '\)']], displayMath: [['$$','$$'], ['\[','\]']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="title">📚 Literature Review Manager <span class="muted">— Single File (Local & Private)</span></div>
+
+    <div class="stack" role="group" aria-label="Main panels">
+      <!-- Top: Form -->
+      <section class="card" aria-labelledby="form-title">
+        <div class="head"><h2 id="form-title">Add / Edit Entry</h2></div>
+        <div class="body">
+          <!-- Row 1: Year, Venue -->
+          <div class="row">
+            <div>
+              <label for="year">Year</label>
+              <input id="year" type="text" inputmode="numeric" pattern="\d{4}" maxlength="4" placeholder="e.g., 2021" />
+            </div>
+            <div>
+              <label for="venue">Venue</label>
+              <input id="venue" type="text" placeholder="Journal / Conference / Book" />
+            </div>
+          </div>
+          <!-- Row 2: Title, Authors -->
+          <div class="row" style="margin-top:12px;">
+            <div>
+              <label for="title">Title</label>
+              <input id="title" type="text" placeholder="Paper title" />
+            </div>
+            <div>
+              <label for="authors">Authors</label>
+              <input id="authors" type="text" placeholder="First A., Second B., ..." />
+            </div>
+          </div>
+          <!-- Row 3: Keywords -->
+          <div class="row" style="margin-top:12px;">
+            <div>
+              <label for="keywords">Keywords</label>
+              <input id="keywords" type="text" placeholder="comma-separated keywords" />
+            </div>
+          </div>
+          <!-- Row 4: Method -->
+          <div style="margin-top:12px;">
+            <label for="method">Method</label>
+            <input id="method" type="text" placeholder="e.g., Sparse GP; Variational; Tensor kernel" />
+          </div>
+          <!-- Row 5: Contribution -->
+          <div style="margin-top:12px;">
+            <label for="contrib">Contribution</label>
+            <textarea id="contrib" placeholder="What are the contributions of this paper?"></textarea>
+          </div>
+          <!-- Row 6: Summary -->
+          <div style="margin-top:12px;">
+            <label for="summary">Summary</label>
+            <textarea id="summary" placeholder="Main ideas, methods, theoretical results, drawbacks, notes."></textarea>
+          </div>
+
+          <div class="actions">
+            <button class="btn-primary" id="saveBtn">Save Entry</button>
+            <button class="btn-secondary" id="resetBtn" title="Clear the form">Reset</button>
+            <button class="btn-danger" id="deleteBtn" title="Delete current entry" style="display:none;">Delete</button>
+          </div>
+
+          <details class="help">
+            <summary>Help & Tips</summary>
+            <div class="muted" style="margin-top:10px; line-height:1.55;">
+              <ul>
+                <li>Use <strong>LaTeX</strong> inline: <code>$k(x, x')$</code>; display: <code>$$k(x, x') = \exp(-\|x-x'\|^2/2\ell^2)$$</code>.</li>
+                <li>Keywords are comma-separated; they become tags for filtering.</li>
+                <li>All data are saved locally in your browser (<em>localStorage</em>), private to your machine.</li>
+                <li>Use <strong>Export</strong> to back up JSON/CSV; <strong>Import</strong> to restore or merge.</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Bottom: Controls + List -->
+      <section class="card" aria-labelledby="list-title">
+        <div class="head"><h2 id="list-title">Library</h2></div>
+        <div class="body">
+          <div class="toolbar" role="region" aria-label="Filters">
+            <input id="search" type="text" placeholder="Search title, authors, summary..." style="flex:2;" />
+            <select id="sortBy" title="Sort by">
+              <option value="yearDesc">Sort: Year ↓</option>
+              <option value="yearAsc">Sort: Year ↑</option>
+              <option value="titleAsc">Sort: Title A→Z</option>
+              <option value="titleDesc">Sort: Title Z→A</option>
+            </select>
+            <input id="yearMin" type="text" inputmode="numeric" pattern="\d{4}" maxlength="4" placeholder="Year ≥" style="width: 110px;" />
+            <input id="yearMax" type="text" inputmode="numeric" pattern="\d{4}" maxlength="4" placeholder="Year ≤" style="width: 110px;" />
+            <div class="spacer"></div>
+            <button class="btn-secondary" id="exportJsonBtn" title="Export JSON">Export JSON</button>
+            <button class="btn-secondary" id="exportCsvBtn" title="Export CSV (Excel)">Export CSV</button>
+            <button class="btn-secondary" id="importBtn" title="Import JSON">Import</button>
+            <input id="importInput" type="file" accept="application/json" style="display:none;" />
+          </div>
+
+          <hr class="hr" />
+          <div id="list" class="list" aria-live="polite"></div>
+          <template id="emptyTpl"><div class="empty">No entries yet. Add your first paper above.</div></template>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // --- Storage helpers ---
+    const STORAGE_KEY = 'litreview.entries.v1';
+    const loadEntries = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const saveEntries = (arr) => localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+
+    // --- State ---
+    let entries = loadEntries();
+    let editingId = null; // when editing existing entry
+
+    // --- DOM refs ---
+    const year = document.getElementById('year');
+    const venue = document.getElementById('venue');
+    const method = document.getElementById('method');
+    const title = document.getElementById('title');
+    const authors = document.getElementById('authors');
+    const keywords = document.getElementById('keywords');
+    const summary = document.getElementById('summary');
+    const contrib = document.getElementById('contrib');
+
+    const saveBtn = document.getElementById('saveBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const deleteBtn = document.getElementById('deleteBtn');
+
+    const list = document.getElementById('list');
+    const emptyTpl = document.getElementById('emptyTpl');
+
+    const search = document.getElementById('search');
+    const sortBy = document.getElementById('sortBy');
+    const yearMin = document.getElementById('yearMin');
+    const yearMax = document.getElementById('yearMax');
+
+    const exportJsonBtn = document.getElementById('exportJsonBtn');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+    const importBtn = document.getElementById('importBtn');
+    const importInput = document.getElementById('importInput');
+
+    // --- Utils ---
+    const uid = () => 'id_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    const sanitize = (s='') => s; // MathJax handles LaTeX regions
+    const fmt = (v) => v ?? '';
+
+    function clearForm() {
+      [year, venue, method, title, authors, keywords, summary, contrib].forEach(el => el.value = '');
+      editingId = null;
+      deleteBtn.style.display = 'none';
+      saveBtn.textContent = 'Save Entry';
+    }
+
+    function fillForm(e) {
+      year.value = e.year || '';
+      venue.value = e.venue || '';
+      method.value = e.method || '';
+      title.value = e.title || '';
+      authors.value = e.authors || '';
+      keywords.value = (e.keywords || []).join(', ');
+      summary.value = e.summary || '';
+      contrib.value = e.contrib || '';
+    }
+
+    function collectForm() {
+      const yearVal = (year.value||'').trim();
+      return {
+        id: editingId || uid(),
+        createdAt: editingId ? entries.find(x=>x.id===editingId)?.createdAt : Date.now(),
+        updatedAt: Date.now(),
+        year: /^\d{4}$/.test(yearVal) ? parseInt(yearVal) : '',
+        venue: venue.value.trim(),
+        method: method.value.trim(),
+        title: title.value.trim(),
+        authors: authors.value.trim(),
+        keywords: keywords.value.split(',').map(s=>s.trim()).filter(Boolean),
+        summary: summary.value || '',
+        contrib: contrib.value || ''
+      };
+    }
+
+    function matchesFilters(e){
+      const q = search.value.toLowerCase().trim();
+      const ymin = parseInt(yearMin.value);
+      const ymax = parseInt(yearMax.value);
+
+      if(!isNaN(ymin) && e.year && e.year < ymin) return false;
+      if(!isNaN(ymax) && e.year && e.year > ymax) return false;
+      if(q){
+        const hay = [e.title, e.authors, e.venue, e.method, (e.keywords||[]).join(' '), e.summary, e.contrib].join(' ').toLowerCase();
+        if(!hay.includes(q)) return false;
+      }
+      return true;
+    }
+
+    function sortEntries(arr){
+      switch(sortBy.value){
+        case 'yearAsc': return arr.sort((a,b)=> (a.year||0) - (b.year||0) || a.title.localeCompare(b.title));
+        case 'titleAsc': return arr.sort((a,b)=> a.title.localeCompare(b.title));
+        case 'titleDesc': return arr.sort((a,b)=> b.title.localeCompare(a.title));
+        case 'yearDesc':
+        default: return arr.sort((a,b)=> (b.year||0) - (a.year||0) || a.title.localeCompare(b.title));
+      }
+    }
+
+    function escapeHtmlPreserveMath(text=''){
+      // Allow raw $...$ and $$...$$ for MathJax; escape other HTML characters
+      const parts = [];
+      const re = /(\$\$[^$]*?\$\$|\$[^$\n]+\$)/g;
+      let last = 0; let m;
+      while((m = re.exec(text))){
+        if(m.index > last){ parts.push(['text', text.slice(last, m.index)]); }
+        parts.push(['math', m[0]]);
+        last = re.lastIndex;
+      }
+      if(last < text.length){ parts.push(['text', text.slice(last)]); }
+      return parts.map(([t,s])=> t==='math'? s : escapeHtml(s)).join('');
+    }
+    function escapeHtml(s=''){
+      return s.replace(/[&<>\"]/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    }
+    function formatContribution(s=''){
+      // Convert lines starting with - or * to bullets; preserve LaTeX in them
+      const lines = s.split(/\r?\n/).map(l=> l.trim());
+      const html = lines.map(l=> {
+        if(/^[-*]\s+/.test(l)) return '<li>'+escapeHtmlPreserveMath(l.replace(/^[-*]\s+/,''))+'</li>';
+        if(l==='') return '';
+        return '<p>'+escapeHtmlPreserveMath(l)+'</p>';
+      }).join('');
+      if(html.includes('<li>')) return '<ul style="margin:0; padding-left:18px;">'+html+'</ul>';
+      return html || '—';
+    }
+
+    function render(){
+      list.innerHTML = '';
+      let filtered = entries.filter(matchesFilters);
+      sortEntries(filtered);
+
+      if(filtered.length === 0){
+        list.appendChild(emptyTpl.content.cloneNode(true));
+        return;
+      }
+
+      for(const e of filtered){
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <div class="item-top">
+            <div>
+              <div style="font-weight:700; font-size:16px;">${sanitize(e.title || '(untitled)')}</div>
+              <div class="muted">${fmt(e.authors)} ${e.year? `<span class='tag'>${e.year}</span>`:''}</div>
+              <div class="muted" style="margin-top:6px;">${fmt(e.venue)}</div>
+            </div>
+          </div>
+          ${e.keywords && e.keywords.length? `<div style="margin-top:8px;">${e.keywords.map(k=>`<span class='tag'>${k}</span>`).join(' ')}</div>`:''}
+          <div class="section-title">Method</div>
+          <div class="muted">${escapeHtmlPreserveMath(fmt(e.method)) || '—'}</div>
+          <div class="section-title">Contribution</div>
+          <div style="line-height:1.6;" class="contrib">${e.contrib? formatContribution(e.contrib): '—'}</div>
+          <div class="section-title">Summary</div>
+          <div style="line-height:1.6;" class="summary">${escapeHtmlPreserveMath(e.summary) || '—'}</div>
+          <div class="actions" style="margin-top:10px;">
+            <button class="btn-secondary" data-act="edit" data-id="${e.id}">Edit</button>
+            <button class="btn-danger" data-act="del" data-id="${e.id}">Delete</button>
+          </div>
+        `;
+        list.appendChild(div);
+      }
+
+      // Typeset LaTeX after render
+      if(window.MathJax && MathJax.typesetPromise){ MathJax.typesetPromise(); }
+    }
+
+    // --- Event handlers ---
+    saveBtn.addEventListener('click', () => {
+      const e = collectForm();
+      if(!e.title){ alert('Title is required.'); return; }
+      const idx = entries.findIndex(x=>x.id===e.id);
+      if(idx >= 0) entries[idx] = e; else entries.push(e);
+      saveEntries(entries);
+      render();
+      clearForm();
+    });
+
+    resetBtn.addEventListener('click', clearForm);
+
+    deleteBtn.addEventListener('click', () => {
+      if(!editingId) return;
+      if(confirm('Delete this entry?')){
+        entries = entries.filter(x=>x.id!==editingId);
+        saveEntries(entries);
+        render();
+        clearForm();
+      }
+    });
+
+    list.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('button');
+      if(!btn) return;
+      const id = btn.getAttribute('data-id');
+      const act = btn.getAttribute('data-act');
+      const e = entries.find(x=>x.id===id);
+      if(!e) return;
+      if(act==='edit'){
+        editingId = e.id;
+        fillForm(e);
+        deleteBtn.style.display = 'inline-block';
+        saveBtn.textContent = 'Update Entry';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if(act==='del'){
+        if(confirm('Delete this entry?')){
+          entries = entries.filter(x=>x.id!==id);
+          saveEntries(entries);
+          render();
+        }
+      }
+    });
+
+    [search, sortBy, yearMin, yearMax].forEach(el => el.addEventListener('input', render));
+
+    // --- Export JSON ---
+    function exportJSON(){
+      const blob = new Blob([JSON.stringify(entries, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'literature-library.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+    exportJsonBtn.addEventListener('click', exportJSON);
+
+    // --- Export CSV (Excel-friendly) ---
+    function csvEscape(val){
+      if(val==null) return '';
+      const s = Array.isArray(val) ? val.join('; ') : String(val);
+      const needsQuote = /[",\n]/.test(s);
+      const escaped = s.replace(/"/g,'""');
+      return needsQuote ? '"'+escaped+'"' : escaped;
+    }
+    function toCSV(rows){
+      const header = ['id','year','venue','title','authors','keywords','method','contrib','summary'];
+      const lines = [header.join(',')];
+      for(const r of rows){
+        lines.push([
+          csvEscape(r.id),
+          csvEscape(r.year),
+          csvEscape(r.venue),
+          csvEscape(r.title),
+          csvEscape(r.authors),
+          csvEscape(r.keywords||[]),
+          csvEscape(r.method),
+          csvEscape(r.contrib),
+          csvEscape(r.summary)
+        ].join(','));
+      }
+      return lines.join('\n');
+    }
+    function exportCSV(){
+      const csv = toCSV(entries);
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'literature-library.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+    exportCsvBtn.addEventListener('click', exportCSV);
+
+    // --- Import JSON ---
+    importBtn.addEventListener('click', () => importInput.click());
+    importInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if(!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if(!Array.isArray(data)) throw new Error('Invalid JSON format.');
+        // merge by id or title-year heuristic
+        const map = new Map(entries.map(x=>[x.id, x]));
+        for(const it of data){
+          if(it && it.id && !map.has(it.id)){
+            map.set(it.id, it);
+          } else if(it && !it.id) {
+            const key = (it.title||'') + '::' + (it.year||'');
+            const has = [...map.values()].some(x=> (x.title||'')+'::'+(x.year||'') === key);
+            if(!has){ it.id = uid(); map.set(it.id, it); }
+          }
+        }
+        entries = [...map.values()];
+        saveEntries(entries);
+        render();
+        importInput.value = '';
+      } catch(err){
+        alert('Import failed: ' + err.message);
+      }
+    });
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>
